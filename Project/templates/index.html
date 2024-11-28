@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiftTrack - Home</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 48px;
+            color: #333;
+        }
+
+        .day-buttons-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            margin-top: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .day-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .rest-checkbox {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .rest-label {
+            margin-right: 15px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .day-button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 24px;
+            padding: 20px;
+            text-align: left;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s, opacity 0.3s;
+        }
+
+        .day-button:hover {
+            background-color: #45a049;
+            transform: scale(1.02);
+        }
+
+        .day-button:active {
+            transform: scale(0.98);
+        }
+
+        .rest-day {
+            background-color: rgba(76, 175, 80, 0.5) !important;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    </style>
+
+    <script>
+        function toggleRestDay(checkbox, buttonId) {
+            const button = document.getElementById(buttonId);
+            if (checkbox.checked) {
+                button.classList.add('rest-day');
+            } else {
+                button.classList.remove('rest-day');
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <h1>LiftTrack</h1>
+
+    <div class="day-buttons-container">
+        <div class="day-item">
+            <input type="checkbox" class="rest-checkbox" onchange="toggleRestDay(this, 'mondayBtn')">
+            <span class="rest-label">Rest day</span>
+            <button id="mondayBtn" class="day-button" onclick="location.href='{{ url_for('monday') }}'">Monday</button>
+        </div>
+        <div class="day-item">
+            <input type="checkbox" class="rest-checkbox" onchange="toggleRestDay(this, 'tuesdayBtn')">
+            <span class="rest-label">Rest day</span>
+            <button id="tuesdayBtn" class="day-button" onclick="location.href='{{ url_for('tuesday') }}'">Tuesday</button>
+        </div>
+        <div class="day-item">
+            <input type="checkbox" class="rest-checkbox" onchange="toggleRestDay(this, 'wednesdayBtn')">
+            <span class="rest-label">Rest day</span>
+            <button id="wednesdayBtn" class="day-button" onclick="location.href='{{ url_for('wednesday') }}'">Wednesday</button>
+        </div>
+        <div class="day-item">
+            <input type="checkbox" class="rest-checkbox" onchange="toggleRestDay(this, 'thursdayBtn')">
+            <span class="rest-label">Rest day</span>
+            <button id="thursdayBtn" class="day-button" onclick="location.href='{{ url_for('thursday') }}'">Thursday</button>
+        </div>
+        <div class="day-item">
+            <input type="checkbox" class="rest-checkbox" onchange="toggleRestDay(this, 'fridayBtn')">
+            <span class="rest-label">Rest day</span>
+            <button id="fridayBtn" class="day-button" onclick="location.href='{{ url_for('friday') }}'">Friday</button>
+        </div>
+        <div class="day-item">
+            <input type="checkbox" class="rest-checkbox" onchange="toggleRestDay(this, 'saturdayBtn')">
+            <span class="rest-label">Rest day</span>
+            <button id="saturdayBtn" class="day-button" onclick="location.href='{{ url_for('saturday') }}'">Saturday</button>
+        </div>
+        <div class="day-item">
+            <input type="checkbox" class="rest-checkbox" onchange="toggleRestDay(this, 'sundayBtn')">
+            <span class="rest-label">Rest day</span>
+            <button id="sundayBtn" class="day-button" onclick="location.href='{{ url_for('sunday') }}'">Sunday</button>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunday</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <button type="button" class="back-button" onclick="location.href='{{ url_for('index') }}'">Back</button>
+
+        <!-- Editable Title -->
+        <h1>
+            Sunday: <input type="text" id="day-title" placeholder="Day name (ex. Chest day)" oninput="autosave()" />
+        </h1>
+
+        <!-- Button to Add New Exercise -->
+        <button type="button" onclick="addExercise()">Add Exercise</button>
+
+        <!-- Div where new tables will be added -->
+        <div id="exercise-container"></div>
+    </div>
+
+    <script>
+        let autosaveTimeout;
+
+        // Automatically save data when input changes
+        function autosave() {
+            clearTimeout(autosaveTimeout);
+
+            // Delay autosave to prevent frequent requests
+            autosaveTimeout = setTimeout(() => {
+                const data = gatherData();
+                localStorage.setItem('Sunday_data', JSON.stringify(data));
+                console.log("Data autosaved");
+            }, 1000); // 1 second delay
+        }
+
+        // Gather data from the form
+        function gatherData() {
+            const dayTitle = document.getElementById('day-title').value;
+            const exercises = [];
+
+            document.querySelectorAll('.exercise-item').forEach(exerciseItem => {
+                const exerciseTitle = exerciseItem.querySelector('.exercise-title').value;
+                const sets = [];
+
+                exerciseItem.querySelectorAll('tbody tr').forEach(row => {
+                    const reps = row.querySelector('.reps-input').value;
+                    const supersetExercise = row.querySelector('.superset-exercise-input') ? row.querySelector('.superset-exercise-input').value : null;
+                    const supersetReps = row.querySelector('.superset-reps-input') ? row.querySelector('.superset-reps-input').value : null;
+                    sets.push({ reps, supersetExercise, supersetReps });
+                });
+
+                exercises.push({ exerciseTitle, sets });
+            });
+
+            return { dayTitle, exercises };
+        }
+
+        // Add exercise to the page
+        function addExercise() {
+            const exerciseDiv = document.createElement('div');
+            exerciseDiv.classList.add('exercise-item');
+
+            const exerciseTitle = document.createElement('input');
+            exerciseTitle.type = 'text';
+            exerciseTitle.placeholder = 'Exercise Name (e.g., Bench Press)';
+            exerciseTitle.classList.add('exercise-title');
+            exerciseTitle.oninput = autosave;
+            exerciseDiv.appendChild(exerciseTitle);
+            exerciseDiv.appendChild(document.createElement('br'));
+
+            const table = document.createElement('table');
+            table.classList.add('exercise-table');
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            const headers = ['Set', 'Reps'];
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            addSetRow(tbody);
+
+            table.appendChild(tbody);
+            exerciseDiv.appendChild(table);
+
+            const addSetButton = document.createElement('button');
+            addSetButton.type = 'button';
+            addSetButton.textContent = 'Add Set';
+            addSetButton.classList.add('add-set-button');
+            addSetButton.onclick = () => addSetRow(tbody);
+            exerciseDiv.appendChild(addSetButton);
+
+            const addSupersetButton = document.createElement('button');
+            addSupersetButton.type = 'button';
+            addSupersetButton.textContent = 'Add Superset';
+            addSupersetButton.classList.add('add-superset-button');
+            addSupersetButton.onclick = () => addSuperset(tbody, addSupersetButton);
+            exerciseDiv.appendChild(addSupersetButton);
+
+            // Add Remove Exercise button
+            const removeExerciseButton = document.createElement('button');
+            removeExerciseButton.type = 'button';
+            removeExerciseButton.textContent = 'Remove Exercise';
+            removeExerciseButton.classList.add('remove-exercise-button');
+            removeExerciseButton.onclick = () => removeExercise(exerciseDiv);
+            exerciseDiv.appendChild(removeExerciseButton);
+
+            document.getElementById('exercise-container').appendChild(exerciseDiv);
+            autosave();
+        }
+
+        // Add a row for a set
+        function addSetRow(tbody) {
+            const row = document.createElement('tr');
+
+            const setCell = document.createElement('td');
+            setCell.textContent = tbody.rows.length + 1;
+            row.appendChild(setCell);
+
+            const repsCell = document.createElement('td');
+            const repsInput = document.createElement('input');
+            repsInput.type = 'number';
+            repsInput.classList.add('reps-input');
+            repsInput.oninput = autosave;
+            repsCell.appendChild(repsInput);
+            row.appendChild(repsCell);
+
+            tbody.appendChild(row);
+            autosave();
+        }
+
+        // Add a superset column to the table
+        function addSuperset(tbody, supersetButton) {
+            // Disable the Superset button after one use
+            supersetButton.disabled = true;
+
+            // Add Superset columns to each row
+            tbody.querySelectorAll('tr').forEach(row => {
+                const supersetExerciseCell = document.createElement('td');
+                const supersetExerciseInput = document.createElement('input');
+                supersetExerciseInput.type = 'text';
+                supersetExerciseInput.classList.add('superset-exercise-input');
+                supersetExerciseInput.placeholder = 'Superset Exercise';
+                supersetExerciseInput.oninput = autosave;
+                supersetExerciseCell.appendChild(supersetExerciseInput);
+                row.appendChild(supersetExerciseCell);
+
+                const supersetRepsCell = document.createElement('td');
+                const supersetRepsInput = document.createElement('input');
+                supersetRepsInput.type = 'number';
+                supersetRepsInput.classList.add('superset-reps-input');
+                supersetRepsInput.placeholder = 'Superset Reps';
+                supersetRepsInput.oninput = autosave;
+                supersetRepsCell.appendChild(supersetRepsInput);
+                row.appendChild(supersetRepsCell);
+            });
+
+            // Update the table header to include Superset columns
+            const headerRow = tbody.parentElement.querySelector('thead tr');
+            const supersetHeader1 = document.createElement('th');
+            supersetHeader1.textContent = 'Superset Exercise';
+            headerRow.appendChild(supersetHeader1);
+
+            const supersetHeader2 = document.createElement('th');
+            supersetHeader2.textContent = 'Superset Reps';
+            headerRow.appendChild(supersetHeader2);
+
+            autosave();
+        }
+
+        // Remove an exercise
+        function removeExercise(exerciseDiv) {
+            exerciseDiv.remove();
+            autosave();
+        }
+
+        // Load saved data from localStorage
+        function loadSavedData() {
+            const savedData = JSON.parse(localStorage.getItem('Sunday_data'));
+            if (savedData) {
+                document.getElementById('day-title').value = savedData.dayTitle;
+
+                savedData.exercises.forEach(exercise => {
+                    addExercise();
+                    const lastExercise = document.querySelector('.exercise-item:last-child');
+                    lastExercise.querySelector('.exercise-title').value = exercise.exerciseTitle;
+
+                    const tbody = lastExercise.querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear initial row
+
+                    exercise.sets.forEach(set => {
+                        addSetRow(tbody);
+                        const lastRow = tbody.querySelector('tr:last-child');
+                        lastRow.querySelector('.reps-input').value = set.reps;
+
+                        // Handle superset data
+                        if (set.supersetExercise || set.supersetReps) {
+                            addSuperset(tbody, lastExercise.querySelector('.add-superset-button'));
+                            lastRow.querySelector('.superset-exercise-input').value = set.supersetExercise || '';
+                            lastRow.querySelector('.superset-reps-input').value = set.supersetReps || '';
+                        }
+                    });
+                });
+            }
+        }
+
+        // Load saved data when the page loads
+        window.onload = loadSavedData;
+    </script>
+</body>
+</html>
